@@ -7,6 +7,10 @@ import java.util.Scanner;
  * move decision, etc) but I'll leave it for now.
  */
 
+// NOTES:
+//  - The AI Workspace doesn't appear to implement Ko rule or Suicide rule '-1' board
+//    tile thing, so I should implement something to at least handle this.
+
 public class Bot {
 
     private Scanner scan = new Scanner(System.in);
@@ -58,5 +62,5 @@ public class Bot {
     public static void main(String[] args) {
         (new Bot()).run();
     }
-}
-;
+
+};
