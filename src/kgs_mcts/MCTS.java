@@ -140,9 +140,9 @@ public class MCTS {
 	 * until you find an unexpanded child node. Expand it. Run a random playout.
 	 * Backpropagate results of the playout.
 	 * 
-	 * @param node
+	 * @param currentNode
 	 *            Node from which to start selection
-	 * @param brd
+	 * @param currentBoard
 	 *            Board state to work from.
 	 */
 	private void select(Board currentBoard, Node currentNode) {

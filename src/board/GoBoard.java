@@ -6,9 +6,26 @@ import kgs_mcts.Move;
 
 import java.util.ArrayList;
 
+/* Functionality to simulate the board, for the MCTS */
+
+/* TODO:
+ *  - Implement getMoves (should be pretty easy)
+ *  - Implement scoring (have to implement Komi)
+ *  - Implement Suicide Rule and Ko Rule detection
+ */
+
 public class GoBoard implements kgs_mcts.Board {
 
-    /* Functionality to simulate the board, for the MCTS */
+    String[][] board;
+
+    public GoBoard(String[] field, int field_height, int field_width)
+    {
+        board = new String[field_width][field_height];
+        for (int i = 0; i < field.length; i++)
+        {
+            board[i % field_width][i / field_height] = field[i];
+        }
+    }
 
     @Override
     public Board duplicate() {
