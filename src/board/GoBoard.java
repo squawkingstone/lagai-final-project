@@ -17,19 +17,21 @@ import java.util.ArrayList;
 public class GoBoard implements kgs_mcts.Board {
 
     String[][] board;
+    int player;
 
-    public GoBoard(String[] field, int field_height, int field_width)
+    public GoBoard(String[] field, int field_height, int field_width, int player)
     {
         board = new String[field_width][field_height];
         for (int i = 0; i < field.length; i++)
         {
             board[i % field_width][i / field_height] = field[i];
         }
+        this.player = player;
     }
 
     @Override
     public Board duplicate() {
-        return null;
+        return null; // return a copy of the thing
     }
 
     @Override
@@ -37,11 +39,26 @@ public class GoBoard implements kgs_mcts.Board {
         return null;
     }
 
+    // Should place the move on the board, do the captures, then X out all the Ko or
+    //  Suicide move spots
     @Override
     public void makeMove(Move m) {
 
     }
 
+    private void getCaptures() {
+
+    }
+
+    private void eliminateSuicideMoves() {
+        // any time a move would result in a capture
+    }
+
+    private void eliminateKoMoves() {
+        // basically, store the move two moves back and don't let them place that there
+    }
+
+    // Not sure how to implement this...
     @Override
     public boolean gameOver() {
         return false;
@@ -49,12 +66,12 @@ public class GoBoard implements kgs_mcts.Board {
 
     @Override
     public int getCurrentPlayer() {
-        return 0;
+        return player;
     }
 
     @Override
     public int getQuantityOfPlayers() {
-        return 0;
+        return 2;
     }
 
     @Override
