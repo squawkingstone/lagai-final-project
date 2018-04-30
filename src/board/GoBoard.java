@@ -30,8 +30,10 @@ public class GoBoard implements kgs_mcts.Board {
     int width;
     int height;
     int player;
+    int moves;
+    int max_moves;
 
-    public GoBoard(String[] field, int field_height, int field_width, int player)
+    public GoBoard(String[] field, int field_height, int field_width, int player, int max)
     {
         board = new String[field_width][field_height];
         width = field_width;
@@ -45,6 +47,8 @@ public class GoBoard implements kgs_mcts.Board {
         this.player = player;
         stones = new int[2];
         stones[0] = stones[1] = 0;
+        moves = 0;
+        max_moves = max;
     }
 
     private GoBoard(GoBoard dupe){
@@ -67,6 +71,12 @@ public class GoBoard implements kgs_mcts.Board {
         this.height = dupe.height;
         this.player = dupe.player;
         this.stones = dupe.stones.clone();
+        this.moves = dupe.moves;
+        this.max_moves = dupe.max_moves;
+    }
+
+    public void setRound(int round){
+        this.moves = round;
     }
 
     @Override
@@ -112,6 +122,11 @@ public class GoBoard implements kgs_mcts.Board {
         boolean move_error = false;
 
         GoBoard original = (GoBoard)this.duplicate();
+        moves++;
+
+        if(moves >= max_moves){
+            move_error = true;
+        }
 
         if (m.getX() > width || m.getY() > height || m.getX() < 0 || m.getY() < 0) {
             move_error = true;
@@ -279,8 +294,8 @@ public class GoBoard implements kgs_mcts.Board {
 
     @Override
     public boolean gameOver() {
-        bool System.err.println("GAME OVER");
-        return isBoardFull();
+        System.err.println("GAME OVER");
+        return isBoardFull() || (moves >= max_moves);
     }
 
     @Override
