@@ -74,11 +74,12 @@ public class GoBoard implements kgs_mcts.Board {
 
         GoMove m = (GoMove) move;
 
+        boolean move_error = false;
+
         String[][] originalBoard = getBoardArray(board);
 
         if (m.getX() > width || m.getY() > height || m.getX() < 0 || m.getY() < 0) {
-            //move.setException(new InvalidMoveException("Move out of bounds"));
-            // Not sure if we should bother throwing an exception here, maybe just return
+            move_error = true;
         }
 
         if (!this.get(m.getX(), m.getY()).equals(".")) { /*Field is not available */
@@ -99,8 +100,8 @@ public class GoBoard implements kgs_mcts.Board {
         // Oh, this basically resets the board if something went wrong, rather than
         // checking if something went wrong before editing the board state. maybe
         // replace the exceptions with a bool
-        if (move.getException() != null) {
-            board.initializeFromArray(originalBoard);
+        if (move_error == true) {
+            // restore
         }
     }
 
