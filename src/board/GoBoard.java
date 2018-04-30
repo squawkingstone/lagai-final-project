@@ -112,7 +112,6 @@ public class GoBoard implements kgs_mcts.Board {
         }
         flood(mark, x, y, move, 0);
         return (mFoundLiberties > 0);
->>>>>>> 901f1543e5e3fa43678885f598fdec4413c70020
     }
 
     private void makeCaptures() {
