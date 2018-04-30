@@ -40,22 +40,37 @@ public class GoBoard implements kgs_mcts.Board {
         {
             board[i % field_width][i / field_height] = field[i];
         }
+        mAffectedFields = new boolean[256][256];
+        mCheckedFields = new boolean[256][256];
         this.player = player;
         stones = new int[2];
         stones[0] = stones[1] = 0;
     }
 
-    private GoBoard(String[][] b, int p){
-        this.board = new String[b.length][];
-        for(int i = 0; i < b.length; i++){
-            this.board[i] = Arrays.copyOf(b[i], b[i].length);
+    private GoBoard(GoBoard dupe){
+        this.board = new String[dupe.board.length][];
+        this.mAffectedFields = new boolean[256][256];
+        this.mCheckedFields = new boolean[256][256];
+        for(int i = 0; i < dupe.board.length; i++){
+            this.board[i] = Arrays.copyOf(dupe.board[i], dupe.board[i].length);
         }
-        this.player = p;
+        for(int i = 0; i < 256; i++){
+            for(int j = 0; j < 256; j++){
+                this.mAffectedFields[i][j] = dupe.mAffectedFields[i][j];
+                this.mCheckedFields[i][j] = dupe.mCheckedFields[i][j];
+            }
+        }
+        this.mFoundLiberties = dupe.mFoundLiberties;
+        this.mNrAffectedFields = dupe.mNrAffectedFields;
+        this.mIsTerritory = dupe.mIsTerritory;
+        this.width = dupe.width;
+        this.height = dupe.height;
+        this.player = dupe.player;
     }
 
     @Override
     public Board duplicate() {
-        return new GoBoard(this.board, this.player); // return a copy of the thing
+        return new GoBoard( this ); // return a copy of the thing
     }
 
     public void setBoard(GoBoard brd)
