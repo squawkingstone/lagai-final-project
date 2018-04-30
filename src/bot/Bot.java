@@ -1,6 +1,8 @@
 package bot;
 
-import java.util.Random;
+import board.GoBoard;
+import kgs_mcts.MCTS;
+
 import java.util.Scanner;
 
 /* This is kind of working. I'm getting in the board and and printing out the next move
@@ -16,12 +18,13 @@ import java.util.Scanner;
 public class Bot {
 
     private Scanner scan = new Scanner(System.in);
-    private Random rand = new Random();
-    private String field[];
+    private GoBoard board;
+    private MCTS mcts;
+    private int player;
 
     public Bot()
     {
-        field = new String[19 * 19];
+        mcts = new MCTS();
     }
 
     public void run()
@@ -36,23 +39,16 @@ public class Bot {
             switch (arg[0])
             {
                 case "settings":
+                    if (arg[1].equals("your_botid")) player = Integer.parseInt(arg[2]);
                     break;
                 case "update":
                     if (arg[1].equals("game") && arg[2].equals("field"))
                     {
-                        field = arg[3].split(",").clone();
+                        board = new GoBoard(arg[3].split(",").clone(), 19, 19, player);
                     }
                     break;
                 case "action":
-                    for (int i = 0; i < field.length; i++)
-                    {
-                        if (field[i].equals("."))
-                        {
-                            System.out.println("place_move " + (i % 19) + " " + (i / 19));
-                            System.err.println(i);
-                            break;
-                        }
-                    }
+                    System.out.println(mcts.runMCTS_UCT(board, 100000000, false).toString());
                     break;
                 default:
                     System.err.println("ERROR: Cmd not found \"" + line + "\"");
