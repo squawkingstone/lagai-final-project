@@ -14,14 +14,22 @@ import java.util.ArrayList;
  *  - Implement Suicide Rule and Ko Rule detection
  */
 
+// Lots of this code is borrowed from or slightly modified from the Riddles.io Go
+// engine. All credit to them for the simulation, we just cannibalized it to make the
+// simulation work.
+
 public class GoBoard implements kgs_mcts.Board {
 
     String[][] board;
+    int width;
+    int height;
     int player;
 
     public GoBoard(String[] field, int field_height, int field_width, int player)
     {
         board = new String[field_width][field_height];
+        width = field_width;
+        height = field_height;
         for (int i = 0; i < field.length; i++)
         {
             board[i % field_width][i / field_height] = field[i];
@@ -39,23 +47,78 @@ public class GoBoard implements kgs_mcts.Board {
         return null;
     }
 
-    // Should place the move on the board, do the captures, then X out all the Ko or
-    //  Suicide move spots
+    // Heavily modified version of GoLogic.transformPlaceMove from the Go engine
     @Override
-    public void makeMove(Move m) {
+    public void makeMove(Move move) {
 
+        GoMove m = (GoMove)move;
+
+        String[][] originalBoard = getBoardArray(board);
+
+        if (m.getX() > width || m.getY() > height || m.getX() < 0 || m.getY() < 0) {
+            //move.setException(new InvalidMoveException("Move out of bounds"));
+            // Not sure if we should bother throwing an exception here, maybe just return
+        }
+
+        if (!this.get(m.getX(), m.getY()).equals(".")) { /*Field is not available */
+            //move.setException(new InvalidMoveException("Chosen position is already filled"));
+        }
+
+        this.set(m.getX(), m.getY(), this.playerString());
+        board.setLastPosition(point); // Not sure what to do here
+
+        int stonesTaken = checkCaptures(board, playerId); // Snatch this
+        move.setStonesTaken(stonesTaken); // Snatch this
+
+        // snatch this
+        if (!checkSuicideRule(board, point, String.valueOf(playerId))) { /* Check Suicide Rule */
+            //move.setException(new InvalidMoveException("Illegal Suicide Move"));
+        }
+
+        // Oh, this basically resets the board if something went wrong, rather than
+        // checking if something went wrong before editing the board state. maybe
+        // replace the exceptions with a bool
+        if (move.getException() != null) {
+            board.initializeFromArray(originalBoard);
+        }
     }
 
-    private void getCaptures() {
+    private void makeCaptures() {
 
     }
 
     private void eliminateSuicideMoves() {
-        // any time a move would result in a capture
+        // any time a move would result in a capture should probably just place the move
+        // and see if capture detection would detect one, then just mark that
     }
 
     private void eliminateKoMoves() {
-        // basically, store the move two moves back and don't let them place that there
+        // if a move would result in a board state from 2 turns ago
+    }
+
+    private void detectCapture() {
+
+    }
+
+    private boolean isCapture(GoMove move)
+    {
+        return false;
+    }
+
+    private void set(int x, int y, String s)
+    {
+        board[x][y] = s;
+    }
+
+    private String get(int x, int y)
+    {
+        return board[x][y];
+    }
+
+    private String playerString()
+    {
+        if (player == 0) return "0";
+        return "1";
     }
 
     // Not sure how to implement this...
