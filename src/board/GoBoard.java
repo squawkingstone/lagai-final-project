@@ -23,6 +23,7 @@ public class GoBoard implements kgs_mcts.Board {
     private int mFoundLiberties;
     private boolean[][] mAffectedFields;
     private boolean[][] mCheckedFields;
+    private int[] stones;
     private int mNrAffectedFields;
     private Boolean mIsTerritory = false;
     String[][] board;
@@ -40,6 +41,8 @@ public class GoBoard implements kgs_mcts.Board {
             board[i % field_width][i / field_height] = field[i];
         }
         this.player = player;
+        stones = new int[2];
+        stones[0] = stones[1] = 0;
     }
 
     private GoBoard(String[][] b, int p){
@@ -53,6 +56,20 @@ public class GoBoard implements kgs_mcts.Board {
     @Override
     public Board duplicate() {
         return new GoBoard(this.board, this.player); // return a copy of the thing
+    }
+
+    public void setBoard(GoBoard brd)
+    {
+        mFoundLiberties = brd.mFoundLiberties;
+        mAffectedFields = brd.mAffectedFields;
+        mCheckedFields = brd.mCheckedFields;
+        stones = brd.stones;
+        mNrAffectedFields = brd.mNrAffectedFields;
+        mIsTerritory = brd.mIsTerritory;
+        board = brd.board;
+        width = brd.width;
+        height = brd.height;
+        player = brd.player;
     }
 
     @Override
@@ -76,32 +93,31 @@ public class GoBoard implements kgs_mcts.Board {
 
         boolean move_error = false;
 
-        String[][] originalBoard = getBoardArray(board);
+        GoBoard original = (GoBoard)this.duplicate();
 
         if (m.getX() > width || m.getY() > height || m.getX() < 0 || m.getY() < 0) {
             move_error = true;
         }
 
         if (!this.get(m.getX(), m.getY()).equals(".")) { /*Field is not available */
-            //move.setException(new InvalidMoveException("Chosen position is already filled"));
+            move_error = true;
         }
 
         this.set(m.getX(), m.getY(), this.playerString());
-        board.setLastPosition(point); // Not sure what to do here
 
-        int stonesTaken = checkCaptures(this, this.player); // Snatch this
-        move.setStonesTaken(stonesTaken); // Snatch this
+        int stonesTaken = checkCaptures(this, player);
+        stones[player] += stonesTaken;
 
         // snatch this
         if (!checkSuicideRule(m.getX(), m.getY(), this.playerString())) { /* Check Suicide Rule */
-            //move.setException(new InvalidMoveException("Illegal Suicide Move"));
+            move_error = true;
         }
 
         // Oh, this basically resets the board if something went wrong, rather than
         // checking if something went wrong before editing the board state. maybe
         // replace the exceptions with a bool
         if (move_error == true) {
-            // restore
+            setBoard(original);
         }
     }
 
