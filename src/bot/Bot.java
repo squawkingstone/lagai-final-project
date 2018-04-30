@@ -21,6 +21,8 @@ public class Bot {
     private GoBoard board;
     private MCTS mcts;
     private int player;
+    private int max_rounds;
+    private int round;
 
     public Bot()
     {
@@ -40,16 +42,22 @@ public class Bot {
             {
                 case "settings":
                     if (arg[1].equals("your_botid")) player = Integer.parseInt(arg[2]);
+                    if (arg[1].equals("max_rounds")) max_rounds = Integer.parseInt(arg[2]);
                     break;
                 case "update":
                     if (arg[1].equals("game") && arg[2].equals("field"))
                     {
-                        board = new GoBoard(arg[3].split(",").clone(), 19, 19, player);
+                        board = new GoBoard(arg[3].split(",").clone(), 19, 19, player, max_rounds);
+                    }
+                    if (arg[1].equals("game") && arg[2].equals("round"))
+                    {
+                        round = Integer.parseInt(arg[3]);
                     }
                     System.err.println("WORM");
                     break;
                 case "action":
                     System.err.println("Actually running");
+                    board.setRound(round);
                     System.out.println(mcts.runMCTS_UCT(board, 1, true).toString());
                     System.err.println("Done MCTS");
                     break;
