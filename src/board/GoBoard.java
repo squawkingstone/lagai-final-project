@@ -22,6 +22,9 @@ public class GoBoard implements kgs_mcts.Board {
 
     private int mFoundLiberties;
     private boolean[][] mAffectedFields;
+    private boolean[][] mCheckedFields;
+    private int mNrAffectedFields;
+    private Boolean mIsTerritory = false;
     String[][] board;
     int width;
     int height;
@@ -101,7 +104,7 @@ public class GoBoard implements kgs_mcts.Board {
         }
     }
 
-    private Boolean checkSuicideRule(int x, int y, String move) {
+    private boolean checkSuicideRule(int x, int y, String move) {
         mFoundLiberties = 0;
         boolean[][] mark = new boolean[this.board.length][this.board[0].length];
         for (int tx = 0; tx < this.board.length; tx++) {
@@ -114,26 +117,82 @@ public class GoBoard implements kgs_mcts.Board {
         return (mFoundLiberties > 0);
     }
 
-    private void makeCaptures() {
-
+    public boolean isBoardFull() {
+        for(int x = 0; x < this.board.length; x++)
+            for(int y = 0; y < this.board[y].length; y++)
+                for (int playerId = 0; playerId <= 1; playerId++)
+                    if (board[x][y].equals(".") &&
+                            checkSuicideRule(x, y, String.valueOf(playerId)))
+                        return false;
+        // No move can be played
+        return true;
     }
 
-    private void eliminateSuicideMoves() {
-        // any time a move would result in a capture should probably just place the move
-        // and see if capture detection would detect one, then just mark that
+    // Returns player score according to Tromp-Taylor Rules
+    public int calculateScore(int playerId) {
+        int score = this.getPlayerStones(playerId);
+
+        if (score <= 0) return 0;
+
+        if (this.getPlayerStones(2 - (playerId + 1)) == 0) { // opponent stones == 0
+            if (score <= 1) {
+                return score;
+            }
+
+            return this.board.length * this.board[0].length;
+        }
+
+        /* Add empty points that reach only playerId color */
+        boolean[][] mark = new boolean[this.board.length][this.board[0].length];
+        mIsTerritory = false;
+        mNrAffectedFields = 0;
+        for(int y = 0; y < this.board.length; y++) {
+            for(int x = 0; x < this.board[0].length; x++) {
+                mCheckedFields[x][y] = false;
+            }
+        }
+
+        for(int y = 0; y < this.board.length; y++) {
+            for(int x = 0; x < this.board[y].length; x++) {
+                if (board[x][y].equals(".") && !mCheckedFields[x][y]) {
+                    for (int tx = 0; tx < this.board.length; tx++) {
+                        for (int ty = 0; ty < this.board[tx].length; ty++) {
+                            mAffectedFields[tx][ty] = false;
+                            mark[tx][ty] = false;
+
+                        }
+                    }
+
+                    mIsTerritory = true;
+                    mNrAffectedFields = 0;
+                    floodFindTerritory(mark, x, y, String.valueOf(playerId), 0);
+
+                    if (mIsTerritory) {
+                        score += mNrAffectedFields;
+                        for (int tx = 0; tx < this.board.length; tx++) {
+                            for (int ty = 0; ty < this.board[tx].length; ty++) {
+                                if (mAffectedFields[tx][ty]) {
+                                    mCheckedFields[tx][ty] = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return score;
     }
 
-    private void eliminateKoMoves() {
-        // if a move would result in a board state from 2 turns ago
-    }
-
-    private void detectCapture() {
-
-    }
-
-    private boolean isCapture(GoMove move)
-    {
-        return false;
+    public int getPlayerStones(int value) {
+        int stones = 0;
+        for(int y = 0; y < this.board.length; y++) {
+            for (int x = 0; x < this.board[y].length; x++) {
+                if (board[x][y].equals(String.valueOf(value))) {
+                    stones++;
+                }
+            }
+        }
+        return stones;
     }
 
     private void set(int x, int y, String s)
@@ -155,7 +214,7 @@ public class GoBoard implements kgs_mcts.Board {
     // Not sure how to implement this...
     @Override
     public boolean gameOver() {
-        return false;
+        return isBoardFull();
     }
 
     @Override
@@ -175,7 +234,23 @@ public class GoBoard implements kgs_mcts.Board {
 
     @Override
     public double[] getMoveWeights() {
-        return new double[0];
+        int p1 = calculateScore(0 );
+        int p2 = calculateScore(1);
+
+        double[] score = new double[2];
+
+        if(p1 > p2){
+            score[0] = 1.0;
+            score[1] = 0.0;
+        }else if(p2 > p1){
+            score[0] = 0.0;
+            score[1] = 1.0;
+        }else{
+            score[0] = 0.5;
+            score[1] = 0.5;
+        }
+
+        return score;
     }
 
     @Override
@@ -221,6 +296,37 @@ public class GoBoard implements kgs_mcts.Board {
             flood(mark, x + 1, y, srcColor, stackCounter+1);
             flood(mark, x, y - 1, srcColor, stackCounter+1);
             flood(mark, x, y + 1, srcColor, stackCounter+1);
+        }
+    }
+    private void floodFindTerritory(boolean [][]mark, int x, int y, String srcColor, int stackCounter) {
+        /* Strategy:
+         * If edge other than (playerid or 0 or board edge) has been found, then no territory.
+         */
+        // Make sure row and col are inside the board
+        if (x < 0) return;
+        if (y < 0) return;
+        if (x >= board.length) return;
+        if (y >= board[0].length) return;
+
+        // Make sure this field hasn't been visited yet
+        if (mark[x][y]) return;
+
+        // Make sure this field is the right color to fill
+        if (!board[x][y].equals(".")) {
+            if (!board[x][y].equals(srcColor)) {
+                mIsTerritory = false;
+            }
+            return;
+        }
+        mAffectedFields[x][y] = true;
+        // Mark field as visited
+        mNrAffectedFields++;
+        mark[x][y] = true;
+        if (stackCounter < 1024) {
+            floodFindTerritory(mark, x - 1, y , srcColor, stackCounter+1);
+            floodFindTerritory(mark, x + 1, y , srcColor, stackCounter+1);
+            floodFindTerritory(mark, x, y - 1 , srcColor, stackCounter+1);
+            floodFindTerritory(mark, x , y + 1, srcColor, stackCounter+1);
         }
     }
 }
