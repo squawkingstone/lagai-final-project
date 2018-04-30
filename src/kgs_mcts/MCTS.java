@@ -57,6 +57,7 @@ public class MCTS {
 
 		if (!pmode) {
 			for (int i = 0; i < runs; i++) {
+				System.err.println("Doing runs");
 				select(startingBoard.duplicate(), rootNode);
 			}
 		} else {
@@ -167,6 +168,7 @@ public class MCTS {
 	 */
 	private BoardNodePair treePolicy(Board b, Node node) {
 		while (!b.gameOver()) {
+		    System.err.println("Running loops in tree policy");
 			if (node.player >= 0) { // this is a regular node
 				if (node.unvisitedChildren == null) {
 					node.expandNode(b);

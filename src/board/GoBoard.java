@@ -66,6 +66,7 @@ public class GoBoard implements kgs_mcts.Board {
         this.width = dupe.width;
         this.height = dupe.height;
         this.player = dupe.player;
+        this.stones = dupe.stones.clone();
     }
 
     @Override
@@ -103,6 +104,8 @@ public class GoBoard implements kgs_mcts.Board {
     // Heavily modified version of GoLogic.transformPlaceMove from the Go engine
     @Override
     public void makeMove(Move move) {
+
+        System.err.println("Calling makeMove");
 
         GoMove m = (GoMove) move;
 
@@ -169,9 +172,9 @@ public class GoBoard implements kgs_mcts.Board {
 
     private boolean checkSuicideRule(int x, int y, String move) {
         mFoundLiberties = 0;
-        boolean[][] mark = new boolean[this.board.length][this.board[0].length];
-        for (int tx = 0; tx < this.board.length; tx++) {
-            for (int ty = 0; ty < this.board[tx].length; ty++) {
+        boolean[][] mark = new boolean[width][height];
+        for (int tx = 0; tx < width; tx++) {
+            for (int ty = 0; ty < height; ty++) {
                 mAffectedFields[tx][ty] = false;
                 mark[tx][ty] = false;
             }
@@ -181,8 +184,8 @@ public class GoBoard implements kgs_mcts.Board {
     }
 
     public boolean isBoardFull() {
-        for(int x = 0; x < this.board.length; x++)
-            for(int y = 0; y < this.board[y].length; y++)
+        for(int x = 0; x < width; x++)
+            for(int y = 0; y < height; y++)
                 for (int playerId = 0; playerId <= 1; playerId++)
                     if (board[x][y].equals(".") &&
                             checkSuicideRule(x, y, String.valueOf(playerId)))
@@ -202,24 +205,24 @@ public class GoBoard implements kgs_mcts.Board {
                 return score;
             }
 
-            return this.board.length * this.board[0].length;
+            return height * width;
         }
 
         /* Add empty points that reach only playerId color */
-        boolean[][] mark = new boolean[this.board.length][this.board[0].length];
+        boolean[][] mark = new boolean[width][height];
         mIsTerritory = false;
         mNrAffectedFields = 0;
-        for(int y = 0; y < this.board.length; y++) {
-            for(int x = 0; x < this.board[0].length; x++) {
+        for(int y = 0; y < height; y++) {
+            for(int x = 0; x < width; x++) {
                 mCheckedFields[x][y] = false;
             }
         }
 
-        for(int y = 0; y < this.board.length; y++) {
-            for(int x = 0; x < this.board[y].length; x++) {
+        for(int y = 0; y < height; y++) {
+            for(int x = 0; x < width; x++) {
                 if (board[x][y].equals(".") && !mCheckedFields[x][y]) {
-                    for (int tx = 0; tx < this.board.length; tx++) {
-                        for (int ty = 0; ty < this.board[tx].length; ty++) {
+                    for (int tx = 0; tx < width; tx++) {
+                        for (int ty = 0; ty < height; ty++) {
                             mAffectedFields[tx][ty] = false;
                             mark[tx][ty] = false;
 
@@ -232,8 +235,8 @@ public class GoBoard implements kgs_mcts.Board {
 
                     if (mIsTerritory) {
                         score += mNrAffectedFields;
-                        for (int tx = 0; tx < this.board.length; tx++) {
-                            for (int ty = 0; ty < this.board[tx].length; ty++) {
+                        for (int tx = 0; tx < width; tx++) {
+                            for (int ty = 0; ty < height; ty++) {
                                 if (mAffectedFields[tx][ty]) {
                                     mCheckedFields[tx][ty] = true;
                                 }
@@ -248,8 +251,8 @@ public class GoBoard implements kgs_mcts.Board {
 
     public int getPlayerStones(int value) {
         int stones = 0;
-        for(int y = 0; y < this.board.length; y++) {
-            for (int x = 0; x < this.board[y].length; x++) {
+        for(int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 if (board[x][y].equals(String.valueOf(value))) {
                     stones++;
                 }
@@ -276,6 +279,7 @@ public class GoBoard implements kgs_mcts.Board {
 
     @Override
     public boolean gameOver() {
+        bool System.err.println("GAME OVER");
         return isBoardFull();
     }
 
@@ -313,8 +317,8 @@ public class GoBoard implements kgs_mcts.Board {
     @Override
     public double[] getMoveWeights() {
         int spaces = 0;
-        for(int i = 0; i < this.board.length; i++){
-            for(int j = 0; j < this.board[i].length; j++){
+        for(int i = 0; i < width; i++){
+            for(int j = 0; j < height; j++){
                 if(board[i][j].equals(".") && !checkSuicideRule(i, j, String.valueOf(this.player))){
                     spaces++;
                 }

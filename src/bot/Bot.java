@@ -46,9 +46,12 @@ public class Bot {
                     {
                         board = new GoBoard(arg[3].split(",").clone(), 19, 19, player);
                     }
+                    System.err.println("WORM");
                     break;
                 case "action":
-                    System.out.println(mcts.runMCTS_UCT(board, 100000000, false).toString());
+                    System.err.println("Actually running");
+                    System.out.println(mcts.runMCTS_UCT(board, 1, true).toString());
+                    System.err.println("Done MCTS");
                     break;
                 default:
                     System.err.println("ERROR: Cmd not found \"" + line + "\"");
