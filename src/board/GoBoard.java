@@ -89,7 +89,7 @@ public class GoBoard implements kgs_mcts.Board {
         move.setStonesTaken(stonesTaken); // Snatch this
 
         // snatch this
-        if (!checkSuicideRule(board, point, String.valueOf(playerId))) { /* Check Suicide Rule */
+        if (!checkSuicideRule(m.getX(), m.getY(), this.playerString())) { /* Check Suicide Rule */
             //move.setException(new InvalidMoveException("Illegal Suicide Move"));
         }
 
@@ -101,7 +101,7 @@ public class GoBoard implements kgs_mcts.Board {
         }
     }
 
-    private Boolean checkSuicideRule(int x, int y, String move) {
+    private boolean checkSuicideRule(int x, int y, String move) {
         mFoundLiberties = 0;
         boolean[][] mark = new boolean[this.board.length][this.board[0].length];
         for (int tx = 0; tx < this.board.length; tx++) {
@@ -112,28 +112,6 @@ public class GoBoard implements kgs_mcts.Board {
         }
         flood(mark, x, y, move, 0);
         return (mFoundLiberties > 0);
-    }
-
-    private void makeCaptures() {
-
-    }
-
-    private void eliminateSuicideMoves() {
-        // any time a move would result in a capture should probably just place the move
-        // and see if capture detection would detect one, then just mark that
-    }
-
-    private void eliminateKoMoves() {
-        // if a move would result in a board state from 2 turns ago
-    }
-
-    private void detectCapture() {
-
-    }
-
-    private boolean isCapture(GoMove move)
-    {
-        return false;
     }
 
     private void set(int x, int y, String s)
