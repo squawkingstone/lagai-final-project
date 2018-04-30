@@ -64,14 +64,14 @@ public class Bot {
                     }
                     break;
                 case "action":
-                    System.err.println(board.getRound());
-                    GoMove m = (GoMove)mcts.runMCTS_UCT(board, 20, false);
+                    GoMove m = (GoMove)mcts.runMCTS_UCT(board, 10, false);
                     System.out.println(m.toString());
-                    System.err.println(m.toString());
                     break;
                 default:
                     System.err.println("ERROR: Cmd not found \"" + line + "\"");
             }
+
+            System.err.println("END LOOP");
 
         }
     }

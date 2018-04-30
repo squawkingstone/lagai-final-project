@@ -55,50 +55,50 @@ public class MCTS {
 		
 		long startTime = System.nanoTime();
 
-		if (!pmode) {
+        if (!pmode) {
 			for (int i = 0; i < runs; i++) {
 				select(startingBoard.duplicate(), rootNode);
 			}
 		} else {
 
-			for (int i = 0; i < threads; i++)
+            for (int i = 0; i < threads; i++)
 				futures.add((FutureTask<Node>) threadpool.submit(new MCTSTask(startingBoard, runs)));
 
 			try {
 
-				while (!checkDone(futures))
+                while (!checkDone(futures))
 					Thread.sleep(10);
 
-				ArrayList<Node> rootNodes = new ArrayList<Node>();
+                ArrayList<Node> rootNodes = new ArrayList<Node>();
 
 				// Collect all computed root nodes
 				for (FutureTask<Node> f : futures)
 					rootNodes.add(f.get());
 
-				ArrayList<Move> moves = new ArrayList<Move>();
-								
+                ArrayList<Move> moves = new ArrayList<Move>();
+
 				for (Node n : rootNodes){
 					Node c = robustChild(n); // Select robust child
 					moves.add(c.move);
 				}
-				
-				bestMoveFound = vote(moves);
-								
-			} catch (InterruptedException | ExecutionException e) {
+
+                bestMoveFound = vote(moves);
+
+            } catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
 			}
 
 			futures.clear();
 		}
 
-		long endTime = System.nanoTime();
+        long endTime = System.nanoTime();
 
 		if (this.trackTime) {
 			System.out.println("Making choice for player: " + rootNode.player);
 			System.out.println("Thinking time per move in milliseconds: " + (endTime - startTime) / 1000000);
 		}
 
-		return bestMoveFound;
+        return bestMoveFound;
 	}
 
 	private Move vote(ArrayList<Move> moves){
