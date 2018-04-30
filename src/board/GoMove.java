@@ -22,9 +22,9 @@ public class GoMove implements kgs_mcts.Move {
     public int compareTo(Move o) {
         GoMove g = (GoMove) o;
         if(this.x == g.getX()){
-            return this.x - g.getX();
+            return this.y - g.getY();
         }
-        return this.y - g.getY();
+        return this.x - g.getX();
     }
 
     @Override

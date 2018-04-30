@@ -57,7 +57,6 @@ public class MCTS {
 
 		if (!pmode) {
 			for (int i = 0; i < runs; i++) {
-				System.err.println("Doing runs");
 				select(startingBoard.duplicate(), rootNode);
 			}
 		} else {
@@ -106,7 +105,7 @@ public class MCTS {
 		Collections.sort(moves);
 		ArrayList<Integer> counts = new ArrayList<Integer>();
 		ArrayList<Move> cmoves = new ArrayList<Move>();
-		
+
 		Move omove = moves.get(0);
 		int count = 0;
 		for (Move m : moves){
@@ -119,6 +118,8 @@ public class MCTS {
 				count = 1;
 			}
 		}
+        cmoves.add(omove);
+        counts.add(count);;
 		
 		int mostvotes = 0;
 		ArrayList<Move> mostVotedMove = new ArrayList<Move>();
@@ -168,7 +169,6 @@ public class MCTS {
 	 */
 	private BoardNodePair treePolicy(Board b, Node node) {
 		while (!b.gameOver()) {
-		    System.err.println("Running loops in tree policy");
 			if (node.player >= 0) { // this is a regular node
 				if (node.unvisitedChildren == null) {
 					node.expandNode(b);

@@ -1,6 +1,8 @@
 package bot;
 
 import board.GoBoard;
+import board.GoMove;
+import kgs_mcts.FinalSelectionPolicy;
 import kgs_mcts.MCTS;
 
 import java.util.Scanner;
@@ -27,6 +29,12 @@ public class Bot {
     public Bot()
     {
         mcts = new MCTS();
+        mcts.setExplorationConstant(0.2);
+        mcts.setTimeDisplay(false);
+        mcts.setOptimisticBias(0.0);
+        mcts.setPessimisticBias(0.0);
+        mcts.setMoveSelectionPolicy(FinalSelectionPolicy.robustChild);
+        mcts.enableRootParallelisation(1);
     }
 
     public void run()
@@ -48,18 +56,18 @@ public class Bot {
                     if (arg[1].equals("game") && arg[2].equals("field"))
                     {
                         board = new GoBoard(arg[3].split(",").clone(), 19, 19, player, max_rounds);
+                        board.setRound(round);
                     }
                     if (arg[1].equals("game") && arg[2].equals("round"))
                     {
                         round = Integer.parseInt(arg[3]);
                     }
-                    System.err.println("WORM");
                     break;
                 case "action":
-                    System.err.println("Actually running");
-                    board.setRound(round);
-                    System.out.println(mcts.runMCTS_UCT(board, 1, true).toString());
-                    System.err.println("Done MCTS");
+                    System.err.println(board.getRound());
+                    GoMove m = (GoMove)mcts.runMCTS_UCT(board, 20, false);
+                    System.out.println(m.toString());
+                    System.err.println(m.toString());
                     break;
                 default:
                     System.err.println("ERROR: Cmd not found \"" + line + "\"");

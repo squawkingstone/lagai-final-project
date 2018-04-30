@@ -79,6 +79,8 @@ public class GoBoard implements kgs_mcts.Board {
         this.moves = round;
     }
 
+    public int getRound() { return this.moves; }
+
     @Override
     public Board duplicate() {
         return new GoBoard( this ); // return a copy of the thing
@@ -101,8 +103,8 @@ public class GoBoard implements kgs_mcts.Board {
     @Override
     public ArrayList<Move> getMoves(CallLocation location) {
         ArrayList<Move> moves = new ArrayList<Move>();
-        for(int i = 0; i < board.length; i++){
-            for(int j = 0; j < board[i].length; j++){
+        for(int i = 0; i < width; i++){
+            for(int j = 0; j < height; j++){
                 if(board[i][j].equals(".")){
                     moves.add(new GoMove(i, j));
                 }
@@ -114,11 +116,7 @@ public class GoBoard implements kgs_mcts.Board {
     // Heavily modified version of GoLogic.transformPlaceMove from the Go engine
     @Override
     public void makeMove(Move move) {
-
-        System.err.println("Calling makeMove");
-
         GoMove m = (GoMove) move;
-
         boolean move_error = false;
 
         GoBoard original = (GoBoard)this.duplicate();
@@ -144,6 +142,12 @@ public class GoBoard implements kgs_mcts.Board {
         // snatch this
         if (!checkSuicideRule(m.getX(), m.getY(), this.playerString())) { /* Check Suicide Rule */
             move_error = true;
+        }
+
+        if (player == 0) {
+            player = 1;
+        } else {
+            player = 0;
         }
 
         // Oh, this basically resets the board if something went wrong, rather than
@@ -294,8 +298,8 @@ public class GoBoard implements kgs_mcts.Board {
 
     @Override
     public boolean gameOver() {
-        System.err.println("GAME OVER");
-        return isBoardFull() || (moves >= max_moves);
+        boolean done = isBoardFull() || (moves >= max_moves);
+        return done;
     }
 
     @Override
@@ -360,7 +364,7 @@ public class GoBoard implements kgs_mcts.Board {
                 counter++;
             }
         }
-        System.out.println(r);
+        System.err.println(r);
     }
 
     private void flood(boolean [][]mark, int x, int y, String srcColor, int stackCounter) {
