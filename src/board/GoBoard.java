@@ -104,6 +104,37 @@ public class GoBoard implements kgs_mcts.Board {
         }
     }
 
+    private int checkCaptures(GoBoard board, int playerId) {
+        int stonesTaken = 0;
+        for(int y = 0; y < height; y++) {
+            for(int x = 0; x < width; x++) {
+                String field = this.get(x, y);
+                if (!field.equals(".") && !field.equals(String.valueOf(playerId))) {
+                    mFoundLiberties = 0;
+                    boolean[][] mark = new boolean[width][height];
+                    for (int tx = 0; tx < height; tx++) {
+                        for (int ty = 0; ty < width; ty++) {
+                            mAffectedFields[tx][ty] = false;
+                            mark[tx][ty] = false;
+                        }
+                    }
+                    flood(board, mark, point, board.getFieldAt(point), 0);
+                    if (mFoundLiberties == 0) { /* Group starves */
+                        for (int tx = 0; tx < height; tx++) {
+                            for (int ty = 0; ty < width; ty++) {
+                                if (mAffectedFields[tx][ty]) {
+                                    board.set(tx, ty, ".");
+                                    stonesTaken++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return stonesTaken;
+    }
+
     private boolean checkSuicideRule(int x, int y, String move) {
         mFoundLiberties = 0;
         boolean[][] mark = new boolean[this.board.length][this.board[0].length];
@@ -211,7 +242,6 @@ public class GoBoard implements kgs_mcts.Board {
         return "1";
     }
 
-    // Not sure how to implement this...
     @Override
     public boolean gameOver() {
         return isBoardFull();
@@ -298,6 +328,7 @@ public class GoBoard implements kgs_mcts.Board {
             flood(mark, x, y + 1, srcColor, stackCounter+1);
         }
     }
+
     private void floodFindTerritory(boolean [][]mark, int x, int y, String srcColor, int stackCounter) {
         /* Strategy:
          * If edge other than (playerid or 0 or board edge) has been found, then no territory.
