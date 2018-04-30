@@ -88,7 +88,7 @@ public class GoBoard implements kgs_mcts.Board {
         this.set(m.getX(), m.getY(), this.playerString());
         board.setLastPosition(point); // Not sure what to do here
 
-        int stonesTaken = checkCaptures(board, playerId); // Snatch this
+        int stonesTaken = checkCaptures(this, this.player); // Snatch this
         move.setStonesTaken(stonesTaken); // Snatch this
 
         // snatch this
@@ -118,7 +118,7 @@ public class GoBoard implements kgs_mcts.Board {
                             mark[tx][ty] = false;
                         }
                     }
-                    flood(board, mark, point, board.getFieldAt(point), 0);
+                    flood(mark, x, y, this.board[x][y], 0);
                     if (mFoundLiberties == 0) { /* Group starves */
                         for (int tx = 0; tx < height; tx++) {
                             for (int ty = 0; ty < width; ty++) {
@@ -259,7 +259,7 @@ public class GoBoard implements kgs_mcts.Board {
 
     @Override
     public double[] getScore() {
-        int p1 = calculateScore(0 );
+        int p1 = calculateScore(0);
         int p2 = calculateScore(1);
 
         double[] score = new double[2];
@@ -280,7 +280,20 @@ public class GoBoard implements kgs_mcts.Board {
 
     @Override
     public double[] getMoveWeights() {
-        return new double[0];
+        int spaces = 0;
+        for(int i = 0; i < this.board.length; i++){
+            for(int j = 0; j < this.board[i].length; j++){
+                if(board[i][j].equals(".") && !checkSuicideRule(i, j, String.valueOf(this.player))){
+                    spaces++;
+                }
+            }
+        }
+
+        double[] weights = new double[spaces];
+        for(int i = 0; i < spaces; i++){
+            weights[i] = 1.0;
+        }
+        return weights;
     }
 
     @Override
