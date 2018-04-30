@@ -229,11 +229,6 @@ public class GoBoard implements kgs_mcts.Board {
 
     @Override
     public double[] getScore() {
-        return new double[0];
-    }
-
-    @Override
-    public double[] getMoveWeights() {
         int p1 = calculateScore(0 );
         int p2 = calculateScore(1);
 
@@ -251,6 +246,11 @@ public class GoBoard implements kgs_mcts.Board {
         }
 
         return score;
+    }
+
+    @Override
+    public double[] getMoveWeights() {
+        return new double[0];
     }
 
     @Override
